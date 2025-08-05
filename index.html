@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò Chơi Viết Lại Câu</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #FFC107;
+            --background-color: #f0f4f8;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --border-radius: 16px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            padding: 2rem;
+            text-align: center;
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .part-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 2rem);
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            background-color: #43a047;
+        }
+
+        .button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        .button.secondary:hover {
+            background-color: #FFB300;
+        }
+
+        #splash-screen {
+            display: block;
+        }
+        #game-screen, #end-screen {
+            display: none;
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        #ipa-display {
+            font-size: 1.5rem;
+            font-family: monospace;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e0e6ec;
+            border-radius: var(--border-radius);
+            border: 2px solid #ccc;
+            letter-spacing: 1px;
+            color: var(--text-color);
+            font-weight: 700;
+            min-height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #vietnamese-meaning {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+            min-height: 1.5rem;
+            display: none;
+        }
+
+        /* Thêm hiệu ứng nhấp nháy mới cho câu đúng */
+        .flash-text {
+            animation: flash-animation 0.5s linear infinite alternate;
+        }
+
+        #feedback {
+            min-height: 2rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        #hint-button {
+            display: none;
+        }
+
+        #hint-display {
+            display: none;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #FFC107;
+            font-weight: bold;
+            min-height: 2rem;
+        }
+        
+        /* CSS để vô hiệu hóa việc sao chép */
+        .no-copy {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            pointer-events: none;
+        }
+
+        #end-screen h2 {
+            font-size: 3rem;
+        }
+
+        #end-screen p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .trophy {
+            font-size: 5rem;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes flash-animation {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="splash-screen" class="container">
+        <h1>Trò Chơi Viết Lại Câu</h1>
+        <p>Viết lại câu hoàn chỉnh dựa trên phiên âm IPA.</p>
+        <input type="text" id="player-name-input" placeholder="Nhập tên của bạn" />
+        <div id="feedback-splash"></div>
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+            <button id="start-part1-button" class="button">Chơi Phần 1 (50 câu)</button>
+            <button id="start-part2-button" class="button secondary">Chơi Phần 2 (70 câu)</button>
+        </div>
+    </div>
+
+    <div id="game-screen" class="container">
+        <button id="reset-button" class="button secondary" style="position: absolute; top: 1rem; right: 1rem;">Quay lại</button>
+        <div class="part-display">Phần <span id="current-part">1</span>/2</div>
+        <div class="score-display">
+            Điểm: <span id="score">0</span> / <span id="total-questions">0</span>
+        </div>
+        <div id="ipa-display"></div>
+        <div id="vietnamese-meaning"></div>
+        <div id="hint-display"></div>
+        <input type="text" id="answer-input" placeholder="Viết lại câu ở đây" />
+        <div id="feedback"></div>
+        <button id="check-button" class="button">Kiểm tra</button>
+        <button id="hint-button" class="button secondary" style="margin-top: 1rem;">Gợi Ý</button>
+    </div>
+
+    <div id="end-screen" class="container">
+        <span class="trophy">🏆</span>
+        <h2 id="end-message"></h2>
+        <p id="final-score"></p>
+        <button id="play-again-button" class="button">Chơi Lại</button>
+    </div>
+
+    <script>
+        const sentences = [
+            // Part 1 - 50 sentences
+            { part: 1, fullSentence: "The book is too heavy for me to carry.", ipa: "/ðə bʊk ɪz tuː ˈhevi fɔːr miː tuː ˈkæri/", vietnamese: "Quyển sách quá nặng đến nỗi tôi không thể mang được." },
+            { part: 1, fullSentence: "The book is so heavy that I cannot carry it.", ipa: "/ðə bʊk ɪz səʊ ˈhevi ðæt aɪ ˈkænɒt ˈkæri ɪt/", vietnamese: "Quyển sách quá nặng đến nỗi tôi không thể mang được." },
+            { part: 1, fullSentence: "The soup is too salty for the kids to eat.", ipa: "/ðə suːp ɪz tuː ˈsɔːlti fɔːr ðə kɪdz tuː iːt/", vietnamese: "Món súp quá mặn đến nỗi bọn trẻ không thể ăn được." },
+            { part: 1, fullSentence: "The soup is so salty that the kids cannot eat it.", ipa: "/ðə suːp ɪz səʊ ˈsɔːlti ðæt ðə kɪdz ˈkænɒt iːt ɪt/", vietnamese: "Món súp quá mặn đến nỗi bọn trẻ không thể ăn được." },
+            { part: 1, fullSentence: "The shoes are too small for her to wear.", ipa: "/ðə ʃuːz ɑːr tuː smɔːl fɔːr hɜːr tuː weər/", vietnamese: "Đôi giày quá nhỏ đến nỗi cô ấy không thể mang được." },
+            { part: 1, fullSentence: "The shoes are so small that she cannot wear them.", ipa: "/ðə ʃuːz ɑːr səʊ smɔːl ðæt ʃiː ˈkænɒt weər ðəm/", vietnamese: "Đôi giày quá nhỏ đến nỗi cô ấy không thể mang được." },
+            { part: 1, fullSentence: "The exam was too difficult for them to pass.", ipa: "/ðə ɪɡˈzæm wɒz tuː ˈdɪfɪkəlt fɔːr ðəm tuː pɑːs/", vietnamese: "Bài thi quá khó đến nỗi họ không thể vượt qua." },
+            { part: 1, fullSentence: "The exam was so difficult that they couldn’t pass it.", ipa: "/ðə ɪɡˈzæm wɒz səʊ ˈdɪfɪkəlt ðæt ðeɪ ˈkʊdnt pɑːs ɪt/", vietnamese: "Bài thi quá khó đến nỗi họ không thể vượt qua." },
+            { part: 1, fullSentence: "The coffee is too bitter for me to drink.", ipa: "/ðə ˈkɒfi ɪz tuː ˈbɪtər fɔːr miː tuː drɪŋk/", vietnamese: "Cà phê quá đắng đến nỗi tôi không thể uống." },
+            { part: 1, fullSentence: "The coffee is so bitter that I cannot drink it.", ipa: "/ðə ˈkɒfi ɪz səʊ ˈbɪtər ðæt aɪ ˈkænɒt drɪŋk ɪt/", vietnamese: "Cà phê quá đắng đến nỗi tôi không thể uống." },
+            { part: 1, fullSentence: "The task is too complicated for him to complete.", ipa: "/ðə tɑːsk ɪz tuː ˈkɒmplɪkeɪtɪd fɔːr hɪm tuː kəmˈpliːt/", vietnamese: "Nhiệm vụ quá phức tạp đến nỗi anh ấy không thể hoàn thành." },
+            { part: 1, fullSentence: "The task is so complicated that he cannot complete it.", ipa: "/ðə tɑːsk ɪz səʊ ˈkɒmplɪkeɪtɪd ðæt hiː ˈkænɒt kəmˈpliːt ɪt/", vietnamese: "Nhiệm vụ quá phức tạp đến nỗi anh ấy không thể hoàn thành." },
+            { part: 1, fullSentence: "The box is too big for me to put in the car.", ipa: "/ðə bɒks ɪz tuː bɪɡ fɔːr miː tuː pʊt ɪn ðə kɑːr/", vietnamese: "Cái hộp quá lớn đến nỗi tôi không thể để vào xe." },
+            { part: 1, fullSentence: "The box is so big that I cannot put it in the car.", ipa: "/ðə bɒks ɪz səʊ bɪɡ ðæt aɪ ˈkænɒt pʊt ɪt ɪn ðə kɑːr/", vietnamese: "Cái hộp quá lớn đến nỗi tôi không thể để vào xe." },
+            { part: 1, fullSentence: "The weather is too hot for us to go outside.", ipa: "/ðə ˈweðər ɪz tuː hɒt fɔːr ʌs tuː ɡəʊ aʊtˈsaɪd/", vietnamese: "Thời tiết quá nóng đến nỗi chúng tôi không thể ra ngoài." },
+            { part: 1, fullSentence: "The weather is so hot that we cannot go outside.", ipa: "/ðə ˈweðər ɪz səʊ hɒt ðæt wiː ˈkænɒt ɡəʊ aʊtˈsaɪd/", vietnamese: "Thời tiết quá nóng đến nỗi chúng tôi không thể ra ngoài." },
+            { part: 1, fullSentence: "The movie is too scary for children to watch.", ipa: "/ðə ˈmuːvi ɪz tuː ˈskɛəri fɔːr ˈtʃɪldrən tuː wɒtʃ/", vietnamese: "Bộ phim quá đáng sợ đến nỗi trẻ em không thể xem." },
+            { part: 1, fullSentence: "The movie is so scary that children cannot watch it.", ipa: "/ðə ˈmuːvi ɪz səʊ ˈskɛəri ðæt ˈtʃɪldrən ˈkænɒt wɒtʃ ɪt/", vietnamese: "Bộ phim quá đáng sợ đến nỗi trẻ em không thể xem." },
+            { part: 1, fullSentence: "The song is too long for me to remember.", ipa: "/ðə sɒŋ ɪz tuː lɒŋ fɔːr miː tuː rɪˈmembər/", vietnamese: "Bài hát quá dài đến nỗi tôi không thể nhớ." },
+            { part: 1, fullSentence: "The song is so long that I cannot remember it.", ipa: "/ðə sɒŋ ɪz səʊ lɒŋ ðæt aɪ ˈkænɒt rɪˈmembər ɪt/", vietnamese: "Bài hát quá dài đến nỗi tôi không thể nhớ." },
+            { part: 1, fullSentence: "The river is too wide for us to swim across.", ipa: "/ðə ˈrɪvər ɪz tuː waɪd fɔːr ʌs tuː swɪm əˈkrɒs/", vietnamese: "Dòng sông quá rộng đến nỗi chúng tôi không thể bơi qua." },
+            { part: 1, fullSentence: "The river is so wide that we cannot swim across it.", ipa: "/ðə ˈrɪvər ɪz səʊ waɪd ðæt wiː ˈkænɒt swɪm əˈkrɒs ɪt/", vietnamese: "Dòng sông quá rộng đến nỗi chúng tôi không thể bơi qua." },
+            { part: 1, fullSentence: "The building is too tall for me to climb.", ipa: "/ðə ˈbɪldɪŋ ɪz tuː tɔːl fɔːr miː tuː klaɪm/", vietnamese: "Tòa nhà quá cao đến nỗi tôi không thể trèo lên." },
+            { part: 1, fullSentence: "The building is so tall that I cannot climb it.", ipa: "/ðə ˈbɪldɪŋ ɪz səʊ tɔːl ðæt aɪ ˈkænɒt klaɪm ɪt/", vietnamese: "Tòa nhà quá cao đến nỗi tôi không thể trèo lên." },
+            { part: 1, fullSentence: "It is such a beautiful garden that we want to visit it.", ipa: "/ɪt ɪz sʌtʃ ə ˈbjuːtəfʊl ˈɡɑːrdən ðæt wiː wɒnt tuː ˈvɪzɪt ɪt/", vietnamese: "Đó là một khu vườn đẹp đến nỗi chúng tôi muốn ghé thăm." },
+            { part: 1, fullSentence: "The garden is so beautiful that we want to visit it.", ipa: "/ðə ˈɡɑːrdən ɪz səʊ ˈbjuːtəfʊl ðæt wiː wɒnt tuː ˈvɪzɪt ɪt/", vietnamese: "Khu vườn đẹp đến nỗi chúng tôi muốn ghé thăm." },
+            { part: 1, fullSentence: "It is such a delicious cake that everyone loves it.", ipa: "/ɪt ɪz sʌtʃ ə dɪˈlɪʃəs keɪk ðæt ˈevriwʌn lʌvz ɪt/", vietnamese: "Đó là một chiếc bánh ngon đến nỗi mọi người đều thích." },
+            { part: 1, fullSentence: "The cake is so delicious that everyone loves it.", ipa: "/ðə keɪk ɪz səʊ dɪˈlɪʃəs ðæt ˈevriwʌn lʌvz ɪt/", vietnamese: "Chiếc bánh ngon đến nỗi mọi người đều thích." },
+            { part: 1, fullSentence: "It is such a noisy street that I cannot sleep well.", ipa: "/ɪt ɪz sʌtʃ ə ˈnɔɪzi striːt ðæt aɪ ˈkænɒt sliːp wel/", vietnamese: "Đó là một con đường ồn ào đến nỗi tôi không thể ngủ ngon." },
+            { part: 1, fullSentence: "The street is so noisy that I cannot sleep well.", ipa: "/ðə striːt ɪz səʊ ˈnɔɪzi ðæt aɪ ˈkænɒt sliːp wel/", vietnamese: "Con đường ồn ào đến nỗi tôi không thể ngủ ngon." },
+            { part: 1, fullSentence: "It is such a busy market that we can hardly walk.", ipa: "/ɪt ɪz sʌtʃ ə ˈbɪzi ˈmɑːrkɪt ðæt wiː kæn ˈhɑːrdli wɔːk/", vietnamese: "Đó là một khu chợ bận rộn đến nỗi chúng tôi khó mà đi bộ." },
+            { part: 1, fullSentence: "The market is so busy that we can hardly walk.", ipa: "/ðə ˈmɑːrkɪt ɪz səʊ ˈbɪzi ðæt wiː kæn ˈhɑːrdli wɔːk/", vietnamese: "Khu chợ bận rộn đến nỗi chúng tôi khó mà đi bộ." },
+            { part: 1, fullSentence: "It is such an interesting story that I read it twice.", ipa: "/ɪt ɪz sʌtʃ ən ˈɪntrəstɪŋ ˈstɔːri ðæt aɪ riːd ɪt twaɪs/", vietnamese: "Đó là một câu chuyện thú vị đến nỗi tôi đọc nó hai lần." },
+            { part: 1, fullSentence: "The story is so interesting that I read it twice.", ipa: "/ðə ˈstɔːri ɪz səʊ ˈɪntrəstɪŋ ðæt aɪ riːd ɪt twaɪs/", vietnamese: "Câu chuyện thú vị đến nỗi tôi đọc nó hai lần." },
+            { part: 1, fullSentence: "It is such a dangerous road that drivers must be careful.", ipa: "/ɪt ɪz sʌtʃ ə ˈdeɪndʒərəs rəʊd ðæt ˈdraɪvərz mʌst biː ˈkeərfʊl/", vietnamese: "Đó là một con đường nguy hiểm đến nỗi các tài xế phải cẩn thận." },
+            { part: 1, fullSentence: "The road is so dangerous that drivers must be careful.", ipa: "/ðə rəʊd ɪz səʊ ˈdeɪndʒərəs ðæt ˈdraɪvərz mʌst biː ˈkeərfʊl/", vietnamese: "Con đường nguy hiểm đến nỗi các tài xế phải cẩn thận." },
+            { part: 1, fullSentence: "It is such a tall building that we can see it from far away.", ipa: "/ɪt ɪz sʌtʃ ə tɔːl ˈbɪldɪŋ ðæt wiː kæn siː ɪt frəm fɑːr əˈweɪ/", vietnamese: "Đó là một tòa nhà cao đến nỗi chúng tôi có thể nhìn thấy nó từ xa." },
+            { part: 1, fullSentence: "The building is so tall that we can see it from far away.", ipa: "/ðə ˈbɪldɪŋ ɪz səʊ tɔːl ðæt wiː kæn siː ɪt frəm fɑːr əˈweɪ/", vietnamese: "Tòa nhà cao đến nỗi chúng tôi có thể nhìn thấy nó từ xa." },
+            { part: 1, fullSentence: "It is such a cold winter that everyone stays indoors.", ipa: "/ɪt ɪz sʌtʃ ə kəʊld ˈwɪntər ðæt ˈevriwʌn steɪz ɪnˈdɔːrz/", vietnamese: "Đó là một mùa đông lạnh đến nỗi mọi người đều ở trong nhà." },
+            { part: 1, fullSentence: "The winter is so cold that everyone stays indoors.", ipa: "/ðə ˈwɪntər ɪz səʊ kəʊld ðæt ˈevriwʌn steɪz ɪnˈdɔːrz/", vietnamese: "Mùa đông lạnh đến nỗi mọi người đều ở trong nhà." },
+            { part: 1, fullSentence: "She is strong enough to lift the chair.", ipa: "/ʃiː ɪz strɒŋ ɪˈnʌf tuː lɪft ðə tʃɛər/", vietnamese: "Cô ấy đủ khỏe để nhấc chiếc ghế." },
+            { part: 1, fullSentence: "He is clever enough to solve the riddle.", ipa: "/hiː ɪz ˈklevər ɪˈnʌf tuː sɒlv ðə ˈrɪdl/", vietnamese: "Anh ấy đủ thông minh để giải câu đố." },
+            { part: 1, fullSentence: "They are old enough to travel alone.", ipa: "/ðeɪ ɑːr əʊld ɪˈnʌf tuː ˈtrævəl əˈləʊn/", vietnamese: "Họ đã đủ tuổi để đi du lịch một mình." },
+            { part: 1, fullSentence: "This table is big enough to hold all the dishes.", ipa: "/ðɪs ˈteɪbl ɪz bɪɡ ɪˈnʌf tuː həʊld ɔːl ðə ˈdɪʃɪz/", vietnamese: "Cái bàn này đủ lớn để chứa tất cả các món ăn." },
+            { part: 1, fullSentence: "The water is warm enough to swim in.", ipa: "/ðə ˈwɔːtər ɪz wɔːrm ɪˈnʌf tuː swɪm ɪn/", vietnamese: "Nước đủ ấm để bơi." },
+            { part: 1, fullSentence: "The road is wide enough for two cars to pass.", ipa: "/ðə rəʊd ɪz waɪd ɪˈnʌf fɔːr tuː kɑːrz tuː pɑːs/", vietnamese: "Con đường đủ rộng cho hai chiếc xe đi qua." },
+            { part: 1, fullSentence: "She is patient enough to teach young children.", ipa: "/ʃiː ɪz ˈpeɪʃənt ɪˈnʌf tuː tiːtʃ jʌŋ ˈtʃɪldrən/", vietnamese: "Cô ấy đủ kiên nhẫn để dạy trẻ nhỏ." },
+            { part: 1, fullSentence: "The box is light enough for me to carry upstairs.", ipa: "/ðə bɒks ɪz laɪt ɪˈnʌf fɔːr miː tuː ˈkæri ʌpˈstɛərz/", vietnamese: "Cái hộp đủ nhẹ để tôi mang lên lầu." },
+            { part: 1, fullSentence: "The movie is short enough to watch in one evening.", ipa: "/ðə ˈmuːvi ɪz ʃɔːrt ɪˈnʌf tuː wɒtʃ ɪn wʌn ˈiːvnɪŋ/", vietnamese: "Bộ phim đủ ngắn để xem trong một buổi tối." },
+            { part: 1, fullSentence: "The lesson is easy enough for everyone to understand.", ipa: "/ðə ˈlesən ɪz ˈiːzi ɪˈnʌf fɔːr ˈevriwʌn tuː ˌʌndərˈstænd/", vietnamese: "Bài học đủ dễ để mọi người có thể hiểu." },
+            // Part 2 - 70 sentences
+            { part: 2, fullSentence: "I had my bike repaired yesterday.", ipa: "/aɪ hæd maɪ baɪk rɪˈpɛərd ˈjestərdeɪ/", vietnamese: "Tôi đã nhờ người sửa xe đạp hôm qua." },
+            { part: 2, fullSentence: "She had her shoes polished.", ipa: "/ʃiː hæd hɜːr ʃuːz ˈpɒlɪʃt/", vietnamese: "Cô ấy đã nhờ người đánh bóng giày." },
+            { part: 2, fullSentence: "We had our windows cleaned last week.", ipa: "/wiː hæd aʊər ˈwɪndəʊz kliːnd lɑːst wiːk/", vietnamese: "Chúng tôi đã nhờ người lau cửa sổ vào tuần trước." },
+            { part: 2, fullSentence: "They had their car repainted.", ipa: "/ðeɪ hæd ðeər kɑːr riːˈpeɪntɪd/", vietnamese: "Họ đã nhờ người sơn lại xe." },
+            { part: 2, fullSentence: "He had his watch fixed at the shop.", ipa: "/hiː hæd hɪz wɒtʃ fɪkst æt ðə ʃɒp/", vietnamese: "Anh ấy đã nhờ người sửa đồng hồ ở cửa hàng." },
+            { part: 2, fullSentence: "I got my phone updated.", ipa: "/aɪ ɡɒt maɪ fəʊn ʌpˈdeɪtɪd/", vietnamese: "Tôi đã nhờ người cập nhật điện thoại của mình." },
+            { part: 2, fullSentence: "She got her nails done.", ipa: "/ʃiː ɡɒt hɜːr neɪlz dʌn/", vietnamese: "Cô ấy đã làm móng tay." },
+            { part: 2, fullSentence: "He got his hair dyed.", ipa: "/hiː ɡɒt hɪz hɛər daɪd/", vietnamese: "Anh ấy đã nhuộm tóc." },
+            { part: 2, fullSentence: "We got our house decorated before the party.", ipa: "/wiː ɡɒt aʊər haʊs ˈdekəreɪtɪd bɪˈfɔːr ðə ˈpɑːrti/", vietnamese: "Chúng tôi đã trang trí nhà trước bữa tiệc." },
+            { part: 2, fullSentence: "They got their computer repaired.", ipa: "/ðeɪ ɡɒt ðeər kəmˈpjuːtər rɪˈpɛərd/", vietnamese: "Họ đã sửa máy tính." },
+            { part: 2, fullSentence: "It takes me 20 minutes to walk to the park.", ipa: "/ɪt teɪks miː ˈtwenti ˈmɪnɪts tuː wɔːk tuː ðə pɑːrk/", vietnamese: "Tôi mất 20 phút để đi bộ đến công viên." },
+            { part: 2, fullSentence: "It takes her 2 hours to cook dinner.", ipa: "/ɪt teɪks hɜːr tuː ˈaʊərz tuː kʊk ˈdɪnər/", vietnamese: "Cô ấy mất 2 giờ để nấu bữa tối." },
+            { part: 2, fullSentence: "It takes them 15 minutes to clean the classroom.", ipa: "/ɪt teɪks ðəm ˈfɪftiːn ˈmɪnɪts tuː kliːn ðə ˈklɑːsruːm/", vietnamese: "Họ mất 15 phút để dọn dẹp lớp học." },
+            { part: 2, fullSentence: "It takes us a week to finish the project.", ipa: "/ɪt teɪks ʌs ə wiːk tuː ˈfɪnɪʃ ðə ˈprɒdʒekt/", vietnamese: "Chúng tôi mất một tuần để hoàn thành dự án." },
+            { part: 2, fullSentence: "It takes me 10 minutes to do my homework.", ipa: "/ɪt teɪks miː ten ˈmɪnɪts tuː duː maɪ ˈhəʊmwɜːrk/", vietnamese: "Tôi mất 10 phút để làm bài tập về nhà." },
+            { part: 2, fullSentence: "It took her 30 minutes to read the article.", ipa: "/ɪt tʊk hɜːr ˈθɜːrti ˈmɪnɪts tuː riːd ðə ˈɑːrtɪkl/", vietnamese: "Cô ấy đã mất 30 phút để đọc bài báo." },
+            { part: 2, fullSentence: "It took him 5 hours to paint the wall.", ipa: "/ɪt tʊk hɪm faɪv ˈaʊərz tuː peɪnt ðə wɔːl/", vietnamese: "Anh ấy đã mất 5 giờ để sơn tường." },
+            { part: 2, fullSentence: "It took them 3 months to build the bridge.", ipa: "/ɪt tʊk ðəm θriː mʌnθs tuː bɪld ðə brɪdʒ/", vietnamese: "Họ đã mất 3 tháng để xây cây cầu." },
+            { part: 2, fullSentence: "It took us a whole day to move the furniture.", ipa: "/ɪt tʊk ʌs ə həʊl deɪ tuː muːv ðə ˈfɜːrnɪtʃər/", vietnamese: "Chúng tôi đã mất cả ngày để di chuyển đồ nội thất." },
+            { part: 2, fullSentence: "It took me 45 minutes to complete the test.", ipa: "/ɪt tʊk miː ˈfɔːrti faɪv ˈmɪnɪts tuː kəmˈpliːt ðə test/", vietnamese: "Tôi đã mất 45 phút để hoàn thành bài kiểm tra." },
+            { part: 2, fullSentence: "I used to live near the beach.", ipa: "/aɪ juːst tuː lɪv nɪər ðə biːtʃ/", vietnamese: "Tôi đã từng sống gần bãi biển." },
+            { part: 2, fullSentence: "She used to play the guitar every evening.", ipa: "/ʃiː juːst tuː pleɪ ðə ɡɪˈtɑːr ˈevri ˈiːvnɪŋ/", vietnamese: "Cô ấy đã từng chơi guitar mỗi tối." },
+            { part: 2, fullSentence: "He used to drive to work.", ipa: "/hiː juːst tuː draɪv tuː wɜːrk/", vietnamese: "Anh ấy đã từng lái xe đi làm." },
+            { part: 2, fullSentence: "We used to visit our grandparents on weekends.", ipa: "/wiː juːst tuː ˈvɪzɪt aʊər ˈɡrændpeərənts ɒn ˈwiːkendz/", vietnamese: "Chúng tôi đã từng đến thăm ông bà vào cuối tuần." },
+            { part: 2, fullSentence: "They used to grow vegetables in the garden.", ipa: "/ðeɪ juːst tuː ɡrəʊ ˈvedʒtəblz ɪn ðə ˈɡɑːrdən/", vietnamese: "Họ đã từng trồng rau trong vườn." },
+            { part: 2, fullSentence: "I am used to eating spicy food.", ipa: "/aɪ æm juːst tuː ˈiːtɪŋ ˈspaɪsi fuːd/", vietnamese: "Tôi đã quen với việc ăn đồ cay." },
+            { part: 2, fullSentence: "She is used to getting up early.", ipa: "/ʃiː ɪz juːst tuː ˈɡetɪŋ ʌp ˈɜːrli/", vietnamese: "Cô ấy đã quen với việc dậy sớm." },
+            { part: 2, fullSentence: "He is used to working late at night.", ipa: "/hiː ɪz juːst tuː ˈwɜːrkɪŋ leɪt æt naɪt/", vietnamese: "Anh ấy đã quen với việc làm việc muộn vào ban đêm." },
+            { part: 2, fullSentence: "We are used to taking the bus to school.", ipa: "/wiː ɑːr juːst tuː ˈteɪkɪŋ ðə bʌs tuː skuːl/", vietnamese: "Chúng tôi đã quen với việc đi xe buýt đến trường." },
+            { part: 2, fullSentence: "They are used to speaking English at work.", ipa: "/ðeɪ ɑːr juːst tuː ˈspiːkɪŋ ˈɪŋɡlɪʃ æt wɜːrk/", vietnamese: "Họ đã quen với việc nói tiếng Anh ở nơi làm việc." },
+            { part: 2, fullSentence: "I got used to driving on the left side of the road.", ipa: "/aɪ ɡɒt juːst tuː ˈdraɪvɪŋ ɒn ðə left saɪd ɒv ðə rəʊd/", vietnamese: "Tôi đã quen với việc lái xe bên trái đường." },
+            { part: 2, fullSentence: "She got used to living alone.", ipa: "/ʃiː ɡɒt juːst tuː ˈlɪvɪŋ əˈləʊn/", vietnamese: "Cô ấy đã quen với việc sống một mình." },
+            { part: 2, fullSentence: "He got used to the cold weather.", ipa: "/hiː ɡɒt juːst tuː ðə kəʊld ˈweðər/", vietnamese: "Anh ấy đã quen với thời tiết lạnh." },
+            { part: 2, fullSentence: "We got used to online learning.", ipa: "/wiː ɡɒt juːst tuː ˈɒnlaɪn ˈlɜːrnɪŋ/", vietnamese: "Chúng tôi đã quen với việc học trực tuyến." },
+            { part: 2, fullSentence: "They got used to working as a team.", ipa: "/ðeɪ ɡɒt juːst tuː ˈwɜːrkɪŋ æz ə tiːm/", vietnamese: "Họ đã quen với việc làm việc nhóm." },
+            { part: 2, fullSentence: "I used to go camping every summer.", ipa: "/aɪ juːst tuː ɡəʊ ˈkæmpɪŋ ˈevri ˈsʌmər/", vietnamese: "Tôi đã từng đi cắm trại mỗi mùa hè." },
+            { part: 2, fullSentence: "She used to bake cookies every Sunday.", ipa: "/ʃiː juːst tuː beɪk ˈkʊkiz ˈevri ˈsʌndeɪ/", vietnamese: "Cô ấy đã từng nướng bánh quy mỗi Chủ Nhật." },
+            { part: 2, fullSentence: "He used to collect stamps.", ipa: "/hiː juːst tuː kəˈlekt stæmps/", vietnamese: "Anh ấy đã từng sưu tập tem." },
+            { part: 2, fullSentence: "We used to play badminton in the park.", ipa: "/wiː juːst tuː pleɪ ˈbædmɪntən ɪn ðə pɑːrk/", vietnamese: "Chúng tôi đã từng chơi cầu lông trong công viên." },
+            { part: 2, fullSentence: "They used to go fishing in the river.", ipa: "/ðeɪ juːst tuː ɡəʊ ˈfɪʃɪŋ ɪn ðə ˈrɪvər/", vietnamese: "Họ đã từng đi câu cá ở sông." },
+            { part: 2, fullSentence: "She was amazed at the beautiful view.", ipa: "/ʃiː wəz əˈmeɪzd æt ðə ˈbjuːtəfʊl vjuː/", vietnamese: "Cô ấy đã ngạc nhiên trước cảnh đẹp." },
+            { part: 2, fullSentence: "He was amazed at her cooking skills.", ipa: "/hiː wəz əˈmeɪzd æt hɜːr ˈkʊkɪŋ skɪlz/", vietnamese: "Anh ấy đã ngạc nhiên trước kỹ năng nấu ăn của cô ấy." },
+            { part: 2, fullSentence: "They were amazed at the speed of the train.", ipa: "/ðeɪ wɜːr əˈmeɪzd æt ðə spiːd ɒv ðə treɪn/", vietnamese: "Họ đã ngạc nhiên trước tốc độ của đoàn tàu." },
+            { part: 2, fullSentence: "We were amazed at his performance.", ipa: "/wiː wɜːr əˈmeɪzd æt hɪz pərˈfɔːrməns/", vietnamese: "Chúng tôi đã ngạc nhiên trước màn trình diễn của anh ấy." },
+            { part: 2, fullSentence: "I was surprised at the news.", ipa: "/aɪ wəz sərˈpraɪzd æt ðə nuːz/", vietnamese: "Tôi đã ngạc nhiên trước tin tức đó." },
+            { part: 2, fullSentence: "She was surprised at how tall he is.", ipa: "/ʃiː wəz sərˈpraɪzd æt haʊ tɔːl hiː ɪz/", vietnamese: "Cô ấy đã ngạc nhiên vì anh ấy cao đến vậy." },
+            { part: 2, fullSentence: "He was angry at her being late.", ipa: "/hiː wəz ˈæŋɡri æt hɜːr ˈbiːɪŋ leɪt/", vietnamese: "Anh ấy đã tức giận vì cô ấy đến muộn." },
+            { part: 2, fullSentence: "The teacher was angry at his cheating.", ipa: "/ðə ˈtiːtʃər wəz ˈæŋɡri æt hɪz ˈtʃiːtɪŋ/", vietnamese: "Giáo viên đã tức giận vì cậu ấy gian lận." },
+            { part: 2, fullSentence: "We were angry at the delay of the flight.", ipa: "/wiː wɜːr ˈæŋɡri æt ðə dɪˈleɪ ɒv ðə flaɪt/", vietnamese: "Chúng tôi đã tức giận vì chuyến bay bị hoãn." },
+            { part: 2, fullSentence: "They were angry at the noisy neighbors.", ipa: "/ðeɪ wɜːr ˈæŋɡri æt ðə ˈnɔɪzi ˈneɪbərz/", vietnamese: "Họ đã tức giận vì những người hàng xóm ồn ào." },
+            { part: 2, fullSentence: "I find it hard to wake up early.", ipa: "/aɪ faɪnd ɪt hɑːrd tuː weɪk ʌp ˈɜːrli/", vietnamese: "Tôi thấy khó để dậy sớm." },
+            { part: 2, fullSentence: "She finds it easy to make friends.", ipa: "/ʃiː faɪndz ɪt ˈiːzi tuː meɪk frendz/", vietnamese: "Cô ấy thấy dễ dàng để kết bạn." },
+            { part: 2, fullSentence: "He finds it interesting to read history books.", ipa: "/hiː faɪndz ɪt ˈɪntrəstɪŋ tuː riːd ˈhɪstəri bʊks/", vietnamese: "Anh ấy thấy thú vị khi đọc sách lịch sử." },
+            { part: 2, fullSentence: "We find it difficult to solve this problem.", ipa: "/wiː faɪnd ɪt ˈdɪfɪkəlt tuː sɒlv ðɪs ˈprɒbləm/", vietnamese: "Chúng tôi thấy khó để giải quyết vấn đề này." },
+            { part: 2, fullSentence: "They find it fun to play soccer after school.", ipa: "/ðeɪ faɪnd ɪt fʌn tuː pleɪ ˈsɒkər ˈɑːftər skuːl/", vietnamese: "Họ thấy vui khi chơi bóng đá sau giờ học." },
+            { part: 2, fullSentence: "I find it boring to watch that TV show.", ipa: "/aɪ faɪnd ɪt ˈbɔːrɪŋ tuː wɒtʃ ðæt tiː viː ʃəʊ/", vietnamese: "Tôi thấy chương trình TV đó nhàm chán." },
+            { part: 2, fullSentence: "She finds it challenging to learn Japanese.", ipa: "/ʃiː faɪndz ɪt ˈtʃælɪndʒɪŋ tuː lɜːrn ˌdʒæpəˈniːz/", vietnamese: "Cô ấy thấy việc học tiếng Nhật là một thử thách." },
+            { part: 2, fullSentence: "He finds it relaxing to listen to music.", ipa: "/hiː faɪndz ɪt rɪˈlæksɪŋ tuː ˈlɪsən tuː ˈmjuːzɪk/", vietnamese: "Anh ấy thấy thư giãn khi nghe nhạc." },
+            { part: 2, fullSentence: "We find it tiring to climb the mountain.", ipa: "/wiː faɪnd ɪt ˈtaɪərɪŋ tuː klaɪm ðə ˈmaʊntən/", vietnamese: "Chúng tôi thấy mệt khi leo núi." },
+            { part: 2, fullSentence: "They find it exciting to travel abroad.", ipa: "/ðeɪ faɪnd ɪt ɪkˈsaɪtɪŋ tuː ˈtrævəl əˈbrɔːd/", vietnamese: "Họ thấy việc đi du lịch nước ngoài rất thú vị." },
+            { part: 2, fullSentence: "I would rather watch TV than read books.", ipa: "/aɪ wʊd ˈrɑːðər wɒtʃ tiː viː ðæn riːd bʊks/", vietnamese: "Tôi thà xem TV còn hơn đọc sách." },
+            { part: 2, fullSentence: "She would rather walk than take the bus.", ipa: "/ʃiː wʊd ˈrɑːðər wɔːk ðæn teɪk ðə bʌs/", vietnamese: "Cô ấy thà đi bộ còn hơn đi xe buýt." },
+            { part: 2, fullSentence: "He would rather stay at home than go to the party.", ipa: "/hiː wʊd ˈrɑːðər steɪ æt həʊm ðæn ɡəʊ tuː ðə ˈpɑːrti/", vietnamese: "Anh ấy thà ở nhà còn hơn đi dự tiệc." },
+            { part: 2, fullSentence: "We would rather eat at home than eat out.", ipa: "/wiː wʊd ˈrɑːðər iːt æt həʊm ðæn iːt aʊt/", vietnamese: "Chúng tôi thà ăn ở nhà còn hơn đi ăn ngoài." },
+            { part: 2, fullSentence: "They would rather drink tea than coffee.", ipa: "/ðeɪ wʊd ˈrɑːðər drɪŋk tiː ðæn ˈkɒfi/", vietnamese: "Họ thà uống trà còn hơn uống cà phê." },
+            { part: 2, fullSentence: "I would rather listen to music than play games.", ipa: "/aɪ wʊd ˈrɑːðər ˈlɪsən tuː ˈmjuːzɪk ðæn pleɪ ɡeɪmz/", vietnamese: "Tôi thà nghe nhạc còn hơn chơi game." },
+            { part: 2, fullSentence: "She would rather sleep than study.", ipa: "/ʃiː wʊd ˈrɑːðər sliːp ðæn ˈstʌdi/", vietnamese: "Cô ấy thà ngủ còn hơn học bài." },
+            { part: 2, fullSentence: "He would rather watch a movie than play sports.", ipa: "/hiː wʊd ˈrɑːðər wɒtʃ ə ˈmuːvi ðæn pleɪ spɔːrts/", vietnamese: "Anh ấy thà xem phim còn hơn chơi thể thao." },
+            { part: 2, fullSentence: "We would rather go swimming than go hiking.", ipa: "/wiː wʊd ˈrɑːðər ɡəʊ ˈswɪmɪŋ ðæn ɡəʊ ˈhaɪkɪŋ/", vietnamese: "Chúng tôi thà đi bơi còn hơn đi bộ đường dài." },
+            { part: 2, fullSentence: "They would rather travel by train than by plane.", ipa: "/ðeɪ wʊd ˈrɑːðər ˈtrævəl baɪ treɪn ðæn baɪ pleɪn/", vietnamese: "Họ thà đi tàu hỏa còn hơn đi máy bay." }
+        ];
+
+        // --- Game State Variables ---
+        let playerName = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let incorrectAttempts = 0;
+        let shuffledSentences = [];
+        let isGameOver = false;
+        let hintUsed = false;
+        let currentPart = 1;
+
+        // --- DOM Elements ---
+        const splashScreen = document.getElementById('splash-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const playerNameInput = document.getElementById('player-name-input');
+        const startPart1Button = document.getElementById('start-part1-button');
+        const startPart2Button = document.getElementById('start-part2-button');
+        const resetButton = document.getElementById('reset-button');
+        const playAgainButton = document.getElementById('play-again-button');
+        const ipaDisplay = document.getElementById('ipa-display');
+        const vietnameseMeaningDisplay = document.getElementById('vietnamese-meaning');
+        const answerInput = document.getElementById('answer-input');
+        const checkButton = document.getElementById('check-button');
+        const hintButton = document.getElementById('hint-button');
+        const feedbackSplash = document.getElementById('feedback-splash');
+        const feedback = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score');
+        const totalQuestionsDisplay = document.getElementById('total-questions');
+        const endMessage = document.getElementById('end-message');
+        const finalScore = document.getElementById('final-score');
+        const hintDisplay = document.getElementById('hint-display');
+        const currentPartDisplay = document.getElementById('current-part');
+
+        // --- Event Listeners ---
+        startPart1Button.addEventListener('click', () => startGame(1));
+        startPart2Button.addEventListener('click', () => startGame(2));
+        resetButton.addEventListener('click', () => {
+            gameScreen.style.display = 'none';
+            splashScreen.style.display = 'block';
+            clearFeedback();
+        });
+        playAgainButton.addEventListener('click', () => {
+             endScreen.style.display = 'none';
+             splashScreen.style.display = 'block';
+             clearFeedback();
+        });
+        checkButton.addEventListener('click', checkAnswer);
+        hintButton.addEventListener('click', giveHint);
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+        answerInput.addEventListener('focus', hideHint);
+
+        // --- Game Logic Functions ---
+        function startGame(part) {
+            playerName = playerNameInput.value.trim();
+            if (playerName === '') {
+                feedbackSplash.textContent = 'Vui lòng nhập tên của bạn để bắt đầu trò chơi!';
+                feedbackSplash.style.color = '#dc3545';
+                playerNameInput.focus();
+                return;
+            }
+
+            currentPart = part;
+            const partSentences = sentences.filter(s => s.part === currentPart);
+            shuffledSentences = shuffleArray([...partSentences]);
+            currentQuestionIndex = 0;
+            score = 0;
+            incorrectAttempts = 0;
+            isGameOver = false;
+
+            splashScreen.style.display = 'none';
+            endScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+
+            currentPartDisplay.textContent = currentPart;
+            totalQuestionsDisplay.textContent = shuffledSentences.length;
+            updateScore();
+            nextQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function nextQuestion() {
+            clearFeedback();
+            answerInput.value = '';
+            answerInput.focus();
+            hintButton.style.display = 'none';
+            hintUsed = false;
+            vietnameseMeaningDisplay.style.display = 'none';
+
+            if (currentQuestionIndex < shuffledSentences.length) {
+                const questionData = shuffledSentences[currentQuestionIndex];
+                ipaDisplay.textContent = questionData.ipa;
+                incorrectAttempts = 0;
+            } else {
+                endGame();
+            }
+        }
+
+        function checkAnswer() {
+            if (isGameOver) return;
+
+            const userInput = answerInput.value.trim().toLowerCase().replace(/[.,!?;:]/g, '');
+            const correctSentence = shuffledSentences[currentQuestionIndex].fullSentence.toLowerCase().replace(/[.,!?;:]/g, '');
+
+            if (userInput === correctSentence) {
+                if (!hintUsed) {
+                    score++;
+                }
+                updateScore();
+                feedback.textContent = 'Chính xác!';
+                feedback.style.color = '#28a745';
+
+                handleCorrectAnswer();
+            } else {
+                incorrectAttempts++;
+                if (incorrectAttempts >= 2) {
+                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/2). Nhấn Gợi Ý nếu bạn không biết.`;
+                    feedback.style.color = '#dc3545';
+                    hintButton.style.display = 'block';
+                } else {
+                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/2)`;
+                    feedback.style.color = '#dc3545';
+                    answerInput.value = '';
+                }
+            }
+        }
+
+        function handleCorrectAnswer() {
+            const currentSentence = shuffledSentences[currentQuestionIndex].fullSentence;
+            const currentVietnameseMeaning = shuffledSentences[currentQuestionIndex].vietnamese;
+
+            ipaDisplay.textContent = currentSentence;
+            ipaDisplay.classList.add('flash-text');
+            vietnameseMeaningDisplay.textContent = currentVietnameseMeaning;
+            vietnameseMeaningDisplay.style.display = 'block';
+
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(currentSentence);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            }
+
+            setTimeout(() => {
+                ipaDisplay.classList.remove('flash-text');
+                currentQuestionIndex++;
+                nextQuestion();
+            }, 4000);
+        }
+
+        function giveHint() {
+            const correctSentence = shuffledSentences[currentQuestionIndex];
+            hintDisplay.textContent = `Gợi ý: ${correctSentence.vietnamese}`;
+            hintDisplay.style.display = 'block';
+            hintDisplay.classList.add('no-copy');
+            
+            hintUsed = true;
+        }
+
+        function hideHint() {
+            hintDisplay.textContent = '';
+            hintDisplay.style.display = 'none';
+            hintDisplay.classList.remove('no-copy');
+        }
+
+        function clearFeedback() {
+            feedback.textContent = '';
+            feedbackSplash.textContent = '';
+            hideHint();
+            vietnameseMeaningDisplay.textContent = '';
+            vietnameseMeaningDisplay.style.display = 'none';
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        function endGame() {
+            isGameOver = true;
+            gameScreen.style.display = 'none';
+            endScreen.style.display = 'block';
+
+            endMessage.textContent = `Chúc mừng, ${playerName}! Bạn đã hoàn thành Phần ${currentPart}.`;
+            finalScore.textContent = `Bạn đã trả lời đúng ${score} trên tổng số ${shuffledSentences.length} câu.`;
+        }
+    </script>
+</body>
+</html>
