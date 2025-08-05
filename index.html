@@ -6,7 +6,6 @@
     <title>Trò Chơi Viết Lại Câu</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-
         :root {
             --primary-color: #4CAF50;
             --secondary-color: #FFC107;
@@ -18,7 +17,6 @@
             --border-radius: 16px;
             --font-family: 'Inter', sans-serif;
         }
-
         body {
             font-family: var(--font-family);
             background-color: var(--background-color);
@@ -28,12 +26,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
-            position: relative;
+            padding: 1rem;
+            box-sizing: border-box;
         }
-
         .container {
-            width: 90%;
+            width: 100%;
             max-width: 600px;
             padding: 2rem;
             text-align: center;
@@ -44,31 +41,26 @@
             z-index: 10;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
-
         h1 {
             font-size: 2.5rem;
             color: var(--primary-color);
             margin-bottom: 1rem;
         }
-
         h2 {
             font-size: 1.8rem;
             margin-bottom: 1rem;
             font-weight: 700;
         }
-        
         .part-display {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--secondary-color);
             margin-bottom: 1rem;
         }
-
         p {
             font-size: 1.2rem;
             line-height: 1.6;
         }
-
         input[type="text"] {
             width: calc(100% - 2rem);
             padding: 1rem;
@@ -78,12 +70,10 @@
             margin-bottom: 1rem;
             transition: border-color 0.3s ease;
         }
-
         input[type="text"]:focus {
             outline: none;
             border-color: var(--primary-color);
         }
-
         .button {
             display: inline-block;
             padding: 1rem 2rem;
@@ -98,35 +88,30 @@
             transition: all 0.3s ease;
             text-decoration: none;
             text-transform: uppercase;
+            margin-top: 0.5rem;
         }
-
         .button:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
             background-color: #43a047;
         }
-
         .button.secondary {
             background-color: var(--secondary-color);
         }
-
         .button.secondary:hover {
             background-color: #FFB300;
         }
-
         #splash-screen {
             display: block;
         }
         #game-screen, #end-screen {
             display: none;
         }
-
         .score-display {
             font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 1.5rem;
         }
-
         #ipa-display {
             font-size: 1.5rem;
             font-family: monospace;
@@ -142,8 +127,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            word-break: break-all;
         }
-
         #vietnamese-meaning {
             font-size: 1.2rem;
             font-style: italic;
@@ -152,81 +137,60 @@
             min-height: 1.5rem;
             display: none;
         }
-
-        /* Thêm hiệu ứng nhấp nháy mới cho câu đúng */
         .flash-text {
             animation: flash-animation 0.5s linear infinite alternate;
         }
-
         #feedback {
             min-height: 2rem;
             font-weight: bold;
             font-size: 1.2rem;
             margin-bottom: 1rem;
         }
-
         #hint-button {
             display: none;
         }
-
         #hint-display {
             display: none;
             margin-top: 1rem;
+            padding: 1rem;
+            background: #fffbe6;
+            border: 1px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
             font-style: italic;
-            color: #FFC107;
+            color: var(--text-color);
             font-weight: bold;
             min-height: 2rem;
+            text-align: left;
         }
-        
-        /* CSS để vô hiệu hóa việc sao chép */
+        /* CSS to disable text selection and copying */
         .no-copy {
             user-select: none;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
-            pointer-events: none;
         }
-
         #end-screen h2 {
             font-size: 3rem;
         }
-
         #end-screen p {
             font-size: 1.5rem;
             margin-bottom: 2rem;
         }
-
         .trophy {
             font-size: 5rem;
             animation: pulse 1s infinite;
         }
-
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
-
         @keyframes flash-animation {
-            from {
-                opacity: 1;
-            }
-
-            to {
-                opacity: 0.3;
-            }
+            from { opacity: 1; }
+            to { opacity: 0.3; }
         }
     </style>
 </head>
-
 <body>
     <div id="splash-screen" class="container">
         <h1>Trò Chơi Viết Lại Câu</h1>
@@ -241,17 +205,17 @@
 
     <div id="game-screen" class="container">
         <button id="reset-button" class="button secondary" style="position: absolute; top: 1rem; right: 1rem;">Quay lại</button>
-        <div class="part-display">Phần <span id="current-part">1</span>/2</div>
+        <div class="part-display">Phần <span id="current-part">1</span></div>
         <div class="score-display">
             Điểm: <span id="score">0</span> / <span id="total-questions">0</span>
         </div>
-        <div id="ipa-display"></div>
+        <div id="ipa-display" class="no-copy"></div>
         <div id="vietnamese-meaning"></div>
         <div id="hint-display"></div>
         <input type="text" id="answer-input" placeholder="Viết lại câu ở đây" />
         <div id="feedback"></div>
         <button id="check-button" class="button">Kiểm tra</button>
-        <button id="hint-button" class="button secondary" style="margin-top: 1rem;">Gợi Ý</button>
+        <button id="hint-button" class="button secondary">Gợi Ý</button>
     </div>
 
     <div id="end-screen" class="container">
@@ -386,7 +350,6 @@
             { part: 2, fullSentence: "We would rather go swimming than go hiking.", ipa: "/wiː wʊd ˈrɑːðər ɡəʊ ˈswɪmɪŋ ðæn ɡəʊ ˈhaɪkɪŋ/", vietnamese: "Chúng tôi thà đi bơi còn hơn đi bộ đường dài." },
             { part: 2, fullSentence: "They would rather travel by train than by plane.", ipa: "/ðeɪ wʊd ˈrɑːðər ˈtrævəl baɪ treɪn ðæn baɪ pleɪn/", vietnamese: "Họ thà đi tàu hỏa còn hơn đi máy bay." }
         ];
-
         // --- Game State Variables ---
         let playerName = '';
         let currentQuestionIndex = 0;
@@ -425,6 +388,7 @@
         startPart2Button.addEventListener('click', () => startGame(2));
         resetButton.addEventListener('click', () => {
             gameScreen.style.display = 'none';
+            endScreen.style.display = 'none';
             splashScreen.style.display = 'block';
             clearFeedback();
         });
@@ -437,7 +401,7 @@
         hintButton.addEventListener('click', giveHint);
         answerInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                checkAnswer();
+                checkButton.click();
             }
         });
         answerInput.addEventListener('focus', hideHint);
@@ -447,7 +411,7 @@
             playerName = playerNameInput.value.trim();
             if (playerName === '') {
                 feedbackSplash.textContent = 'Vui lòng nhập tên của bạn để bắt đầu trò chơi!';
-                feedbackSplash.style.color = '#dc3545';
+                feedbackSplash.style.color = 'var(--error-color)';
                 playerNameInput.focus();
                 return;
             }
@@ -457,7 +421,6 @@
             shuffledSentences = shuffleArray([...partSentences]);
             currentQuestionIndex = 0;
             score = 0;
-            incorrectAttempts = 0;
             isGameOver = false;
 
             splashScreen.style.display = 'none';
@@ -485,11 +448,11 @@
             hintButton.style.display = 'none';
             hintUsed = false;
             vietnameseMeaningDisplay.style.display = 'none';
+            incorrectAttempts = 0;
 
             if (currentQuestionIndex < shuffledSentences.length) {
                 const questionData = shuffledSentences[currentQuestionIndex];
                 ipaDisplay.textContent = questionData.ipa;
-                incorrectAttempts = 0;
             } else {
                 endGame();
             }
@@ -502,25 +465,29 @@
             const correctSentence = shuffledSentences[currentQuestionIndex].fullSentence.toLowerCase().replace(/[.,!?;:]/g, '');
 
             if (userInput === correctSentence) {
-                if (!hintUsed) {
+                // UPDATED: Only award points if no hint was used AND there are fewer than 3 incorrect attempts.
+                if (!hintUsed && incorrectAttempts < 3) {
                     score++;
                 }
                 updateScore();
                 feedback.textContent = 'Chính xác!';
-                feedback.style.color = '#28a745';
-
+                feedback.style.color = 'var(--success-color)';
                 handleCorrectAnswer();
             } else {
                 incorrectAttempts++;
-                if (incorrectAttempts >= 2) {
-                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/2). Nhấn Gợi Ý nếu bạn không biết.`;
-                    feedback.style.color = '#dc3545';
-                    hintButton.style.display = 'block';
+                feedback.style.color = 'var(--error-color)';
+                hintButton.style.display = 'inline-block';
+
+                if (incorrectAttempts >= 3) {
+                    // UPDATED: Feedback when the user has used up all their chances for points.
+                    feedback.textContent = `Sai rồi! Bạn đã mất quyền nhận điểm cho câu này. Hãy thử lại.`;
                 } else {
-                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/2)`;
-                    feedback.style.color = '#dc3545';
-                    answerInput.value = '';
+                    // UPDATED: Feedback for the first and second incorrect attempts.
+                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/3). Nhấn Gợi Ý nếu bạn cần giúp đỡ.`;
                 }
+                
+                answerInput.value = '';
+                answerInput.focus();
             }
         }
 
@@ -528,9 +495,13 @@
             const currentSentence = shuffledSentences[currentQuestionIndex].fullSentence;
             const currentVietnameseMeaning = shuffledSentences[currentQuestionIndex].vietnamese;
 
+            answerInput.disabled = true;
+            checkButton.disabled = true;
+            hintButton.style.display = 'none';
+
             ipaDisplay.textContent = currentSentence;
             ipaDisplay.classList.add('flash-text');
-            vietnameseMeaningDisplay.textContent = currentVietnameseMeaning;
+            vietnameseMeaningDisplay.textContent = `Nghĩa là: ${currentVietnameseMeaning}`;
             vietnameseMeaningDisplay.style.display = 'block';
 
             if ('speechSynthesis' in window) {
@@ -542,22 +513,27 @@
             setTimeout(() => {
                 ipaDisplay.classList.remove('flash-text');
                 currentQuestionIndex++;
+                answerInput.disabled = false;
+                checkButton.disabled = false;
                 nextQuestion();
             }, 4000);
         }
 
         function giveHint() {
             const correctSentence = shuffledSentences[currentQuestionIndex];
-            hintDisplay.textContent = `Gợi ý: ${correctSentence.vietnamese}`;
+            
+            const englishHint = `Tiếng Anh: ${correctSentence.fullSentence}`;
+            const vietnameseHint = `Tiếng Việt: ${correctSentence.vietnamese}`;
+
+            hintDisplay.innerHTML = `${englishHint}<br>${vietnameseHint}`;
             hintDisplay.style.display = 'block';
             hintDisplay.classList.add('no-copy');
-            
             hintUsed = true;
         }
 
         function hideHint() {
-            hintDisplay.textContent = '';
             hintDisplay.style.display = 'none';
+            hintDisplay.innerHTML = '';
             hintDisplay.classList.remove('no-copy');
         }
 
