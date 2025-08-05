@@ -357,7 +357,7 @@
         let incorrectAttempts = 0;
         let shuffledSentences = [];
         let isGameOver = false;
-        let hintUsed = false;
+        let hintUsed = false; 
         let currentPart = 1;
 
         // --- DOM Elements ---
@@ -461,29 +461,45 @@
         function checkAnswer() {
             if (isGameOver) return;
 
-            const userInput = answerInput.value.trim().toLowerCase().replace(/[.,!?;:]/g, '');
-            const correctSentence = shuffledSentences[currentQuestionIndex].fullSentence.toLowerCase().replace(/[.,!?;:]/g, '');
+            // UPDATED: More robust normalization function to handle different typing styles.
+            const normalize = (str) => {
+                return str.trim()
+                          .toLowerCase()
+                          .replace(/[.,!?;:'’‘`]/g, "") // Removes punctuation and all common quote types
+                          .replace(/\s+/g, ' '); // Collapses multiple spaces into a single space
+            };
+
+            const userInput = normalize(answerInput.value);
+            const correctSentence = normalize(shuffledSentences[currentQuestionIndex].fullSentence);
 
             if (userInput === correctSentence) {
-                // UPDATED: Only award points if no hint was used AND there are fewer than 3 incorrect attempts.
-                if (!hintUsed && incorrectAttempts < 3) {
+                // Award point if correct within 3 attempts.
+                if (incorrectAttempts < 3) {
                     score++;
+                    feedback.textContent = 'Chính xác!';
+                    feedback.style.color = 'var(--success-color)';
+                } else {
+                    // Correct, but too many attempts.
+                    feedback.textContent = 'Đúng rồi! Nhưng bạn không được tính điểm cho câu này.';
+                    feedback.style.color = 'var(--success-color)'; 
                 }
                 updateScore();
-                feedback.textContent = 'Chính xác!';
-                feedback.style.color = 'var(--success-color)';
                 handleCorrectAnswer();
             } else {
+                // Incorrect answer
                 incorrectAttempts++;
                 feedback.style.color = 'var(--error-color)';
-                hintButton.style.display = 'inline-block';
 
-                if (incorrectAttempts >= 3) {
-                    // UPDATED: Feedback when the user has used up all their chances for points.
-                    feedback.textContent = `Sai rồi! Bạn đã mất quyền nhận điểm cho câu này. Hãy thử lại.`;
-                } else {
-                    // UPDATED: Feedback for the first and second incorrect attempts.
-                    feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/3). Nhấn Gợi Ý nếu bạn cần giúp đỡ.`;
+                // Show hint from the second attempt onwards.
+                if (incorrectAttempts >= 2) {
+                    hintButton.style.display = 'inline-block';
+                }
+
+                // Adjust feedback based on the number of attempts.
+                if (incorrectAttempts < 3) {
+                     feedback.textContent = `Sai rồi! Thử lại (${incorrectAttempts}/3).`;
+                } else { // incorrectAttempts is 3 or more
+                     feedback.textContent = `Sai rồi! Bạn đã mất quyền nhận điểm cho câu này. Hãy thử lại.`;
                 }
                 
                 answerInput.value = '';
